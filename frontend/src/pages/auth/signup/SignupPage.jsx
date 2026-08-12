@@ -1,25 +1,51 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import  XSvg  from "../../../components/svgs/X";
+import XSvg from "../../../components/svgs/X";
 
 import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
+
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
 const SignupPage = () => {
-  // const [isPending, setIsPending] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     fullName: "",
     password: "",
-    confirmPassword: "",
+  });
+
+  const { mutate, isPending, isError, error } = useMutation({
+    mutationFn: async ({ username, email, fullName, password }) => {
+      try {
+        const res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, fullName, password }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to create account");
+        return data;
+        
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+
+    onSuccess: () => {
+      toast.success("Account created successfully");
+    },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    mutate(formData);
   };
 
   const handleInputChange = (e) => {
@@ -41,8 +67,10 @@ const SignupPage = () => {
           onSubmit={handleSubmit}
         >
           <XSvg className="w-24 lg:hidden fill-white" />
-          
-          <h1 className="text-4xl font-extrabold text-white">Create your account</h1>
+
+          <h1 className="text-4xl font-extrabold text-white">
+            Create your account
+          </h1>
           <label className="input input-bordered rounded flex items-center gap-2">
             <MdOutlineMail />
             <input
@@ -90,10 +118,9 @@ const SignupPage = () => {
             />
           </label>
           <button className="btn rounded-full btn-primary text-white">
-            {/* {isPending ? "Loading..." : "Sign up"} */}
-            Sign up
+            {isPending ? "Loading..." : "Sign up"}
           </button>
-          {/* {isError && <p className="text-red-500">{error.message}</p>} */}
+          {isError && <p className="text-red-500">{error.message}</p>}
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">
           <p className="text-white text-lg">Already have an account?</p>
@@ -103,7 +130,6 @@ const SignupPage = () => {
             </button>
           </Link>
         </div>
-        
       </div>
     </div>
   );
