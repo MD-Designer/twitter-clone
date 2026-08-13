@@ -5,34 +5,53 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { toast } from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
-
-// import LoadingSpinner from "./LoadingSpinner";
-// import { formatPostDate } from "../../utils/date";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { useAuthUser } from "../../hooks/useAuthUser";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
+  const { data: authUser } = useAuthUser();
+  const queryClient = useQueryClient();
+  const { mutate: deletePost, isPending: isDeleting } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/posts/${post._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error);
+      }
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Post deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
   const postOwner = post.user;
 
-  const isMyPost = true;
+  const isMyPost = authUser?._id === post.user._id;
 
-  const formattedDate = "1h"
+  const formattedDate = "1h";
 
   const isLiking = false;
 
   const isLiked = false;
 
-  const isCommenting = false
+  const isCommenting = false;
 
-  const handleDeletePost = () => {};
+  const handleDeletePost = () => {
+    deletePost();
+  };
 
   const handlePostComment = (e) => {
     e.preventDefault();
   };
 
   const handleLikePost = () => {};
-
 
   return (
     <>
@@ -59,14 +78,14 @@ const Post = ({ post }) => {
             </span>
             {isMyPost && (
               <span className="flex justify-end flex-1">
-                {/* {!isDeleting && ( */}
+                {!isDeleting && (
                   <FaTrash
                     className="cursor-pointer hover:text-red-500"
                     onClick={handleDeletePost}
                   />
-                {/* // )} */}
+                )}
 
-                {/* {isDeleting && <LoadingSpinner size="sm" />} */}
+                {isDeleting && <LoadingSpinner size="sm" />}
               </span>
             )}
           </div>
@@ -145,7 +164,7 @@ const Post = ({ post }) => {
                       onChange={(e) => setComment(e.target.value)}
                     />
                     <button className="btn btn-primary rounded-full btn-sm text-white px-4">
-                      {isCommenting ? <LoadingSpinner size='md' /> : "Post"}
+                      {isCommenting ? <LoadingSpinner size="md" /> : "Post"}
                     </button>
                   </form>
                 </div>
