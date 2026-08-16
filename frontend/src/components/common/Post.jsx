@@ -80,10 +80,19 @@ const Post = ({ post }) => {
       return data;
     },
 
-    onSuccess: async () => {
-      toast.success("comment posted successfully.");
-      setComment("");
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    onSuccess: async (updatedComments) => {
+      queryClient.setQueryData(["posts"], (oldData) => {
+        return oldData.map((p) => {
+          if (p._id === post._id) {
+            return {
+              ...p,
+              comments: updatedComments,
+            };
+          }
+
+          return p;
+        });
+      });
     },
     onError: async (error) => {
       toast.error(error.message);
