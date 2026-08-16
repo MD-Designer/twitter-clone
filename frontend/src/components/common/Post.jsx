@@ -37,9 +37,34 @@ const Post = ({ post }) => {
 
   const formattedDate = "1h";
 
-  const isLiking = false;
+  const { mutate: likePost, isPending: isLiking } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/posts/like/${post._id}`, {
+        method: "Post",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+      return data;
+    },
+    onSuccess: (updatedLikes) => {
+      // queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.setQueryData(["posts"], (oldData) => {
+        return oldData.map((p) => {
+          if (p._id === post._id) {
+            return { ...p, likes: updatedLikes };
+          }
+          return p;
+        });
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
-  const isLiked = false;
+  const isLiked = post.likes.includes(authUser._id);
 
   const isCommenting = false;
 
@@ -51,7 +76,10 @@ const Post = ({ post }) => {
     e.preventDefault();
   };
 
-  const handleLikePost = () => {};
+  const handleLikePost = () => {
+    if (isLiking) return;
+    likePost();
+  };
 
   return (
     <>
@@ -191,9 +219,9 @@ const Post = ({ post }) => {
                 )}
 
                 <span
-                  className={`text-sm  group-hover:text-pink-500 
-                                         text-pink-500  text-slate-500
-                                    }`}
+                  className={`text-sm  group-hover:text-pink-500 ${
+                    isLiked ? "text-pink-500 " : " text-slate-500"
+                  } `}
                 >
                   {post.likes.length}
                 </span>
