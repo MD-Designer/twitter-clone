@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router-dom";
 
 import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
-import EditProfileModal from "./EditProfileModal";
 
 import { POSTS } from "../../utils/db/dummy";
 
@@ -11,11 +10,13 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { formatMemberSinceDate } from "../../utils/date";
 
 import useFollow from "../../hooks/useFollow";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 import { useQuery } from "@tanstack/react-query";
+import { useAuthUser } from "../../hooks/useAuthUser";
+import { formatMemberSinceDate } from "../../utils/data";
+// import EditProfileModal from "./EditProfilePage";
 
 const ProfilePage = () => {
   const [coverImg, setCoverImg] = useState(null);
@@ -25,16 +26,35 @@ const ProfilePage = () => {
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
 
+  const { data: authUser } = useAuthUser();
+
   const { username } = useParams();
 
   const { follow, isPending } = useFollow();
 
   const { isUpdatingProfile, updateProfile } = useUpdateUserProfile();
 
-  // const isMyProfile = authUser._id === user?._id;
-  // const memberSinceDate = formatMemberSinceDate(user?.createdAt);
-  // const amIFollowing = authUser?.following.includes(user?._id);
+  const {
+    data: user,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      const res = await fetch(`/api/users/profile/${username}`);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+      return data;
+    },
+  });
 
+  const isMyProfile = authUser._id === user?._id;
+  const memberSinceDate = formatMemberSinceDate(user?.createdAt);
+  const amIFollowing = authUser?.following?.includes(user?._id) ?? false;
+  
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
     if (file) {
@@ -47,9 +67,9 @@ const ProfilePage = () => {
     }
   };
 
-  // useEffect(() => {
-  // 	refetch();
-  // }, [username, refetch]);
+  useEffect(() => {
+    refetch();
+  }, [username, refetch]);
 
   return (
     <>
@@ -125,7 +145,7 @@ const ProfilePage = () => {
                 </div>
               </div>
               <div className="flex justify-end px-4 mt-5">
-                {isMyProfile && <EditProfileModal authUser={authUser} />}
+                {/* {isMyProfile && <EditProfileModal authUser={authUser} />} */}
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"

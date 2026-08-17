@@ -6,7 +6,7 @@ import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import toast from "react-hot-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../../hooks/useAuthUser";
 
 const Sidebar = () => {
@@ -35,7 +35,7 @@ const Sidebar = () => {
     },
   });
 
-  const { data: authUser } = useAuthUser();
+ const {data: authUser} = useAuthUser()
 
   return (
     <div className="md:flex-[2_2_0] w-18 max-w-52">
@@ -64,7 +64,10 @@ const Sidebar = () => {
           </li>
 
           <li className="flex justify-center md:justify-start">
-            <Link className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer">
+            <Link
+              to={`/profile/${authUser?.username}`}
+              className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
+            >
               <FaUser className="w-6 h-6" />
               <span className="text-lg hidden md:block">Profile</span>
             </Link>
