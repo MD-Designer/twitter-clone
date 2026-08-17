@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
 import Notification from "../models/notification.model.js";
-import ImageKit from "imagekit";
+import imagekit from "../lib/imagekit.js";
 import bcrypt from "bcryptjs";
 
 export const getUserProfile = async (req, res) => {
@@ -119,9 +119,9 @@ export const updateUserProfile = async (req, res) => {
 
     if (profileImg) {
       if (user.profileImg?.fileId) {
-        await ImageKit.deleteFile(user.profileImg.fileId);
+        await imagekit.deleteFile(user.profileImg.fileId);
       }
-      const uploadResponse = await ImageKit.upload({
+      const uploadResponse = await imagekit.upload({
         file: profileImg,
         fileName: "profile-image",
         folder: "/users/profile",
@@ -135,10 +135,10 @@ export const updateUserProfile = async (req, res) => {
 
     if (coverImg) {
       if (user.coverImg?.fileId) {
-        await ImageKit.deleteFile(user.coverImg.fileId);
+        await imagekit.deleteFile(user.coverImg.fileId);
       }
 
-      const uploadResponse = await ImageKit.upload({
+      const uploadResponse = await imagekit.upload({
         file: coverImg,
         fileName: "cover-image",
         folder: "/users/cover",

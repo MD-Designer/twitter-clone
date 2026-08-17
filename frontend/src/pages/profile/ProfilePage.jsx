@@ -34,37 +34,6 @@ const ProfilePage = () => {
 
   const { isUpdatingProfile, updateProfile } = useUpdateUserProfile();
 
-  // const { mutate: updateProfile, isLoading: isUpdatingProfile } = useMutation({
-  //   mutationFn: async () => {
-  //     try {
-  //       const res = await fetch(`/api/users/update`, {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({ coverImg, profileImg }),
-  //       });
-  //       const data = await res.json();
-  //       if (!res.ok) {
-  //         throw new Error(data.error || "Something went wrong");
-  //       }
-  //       return data;
-  //     } catch (error) {
-  //       throw new Error(error.message);
-  //     }
-  //   },
-  //   onSuccess: async () => {
-  //     toast.success("prfile updated successfully");
-  //     Promise.all([
-  //       queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-  //       queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
-  //     ]);
-  //   },
-  //   onError: async(error) => {
-  //     toast.error(error.message)
-  //   }
-  // });
-
   const {
     data: user,
     isLoading,
