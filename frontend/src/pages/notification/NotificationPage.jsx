@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 
 import LoadingSpinner from "../../components/common/LoadingSpinner";
@@ -8,21 +9,47 @@ import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 
 const NotificationPage = () => {
-  const isLoading = false;
-
-  const deleteNotifications = () => {};
-
-  const notifications = [
-    {
-      _id: "1",
-      from: {
-        _id: "1",
-        username: "milad",
-        profileImg: "/avatars/boy2.png",
-      },
-      type: "follow",
+  const queryClient = useQueryClient();
+  const { data: notifications, isLoading } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: async () => {
+      const res = await fetch("/api/notifications");
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+      return data;
     },
-  ];
+  });
+
+  const { mutate: deleteNotification } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetch("/api/notification", {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Something went wrong");
+        }
+        return data;
+      } catch (error) {
+        throw new Error("Failed to delete notification", error.message);
+      }
+    },
+    onSuccess: () => {
+      toast.success("Notification deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteNotifications = (e) => {
+    e.preventDefault();
+    deleteNotification();
+  };
 
   return (
     <>
