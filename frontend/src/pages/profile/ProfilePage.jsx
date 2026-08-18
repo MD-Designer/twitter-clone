@@ -13,7 +13,7 @@ import { MdEdit } from "react-icons/md";
 
 import useFollow from "../../hooks/useFollow";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
-import {  useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthUser } from "../../hooks/useAuthUser";
 import { formatMemberSinceDate } from "../../utils/data";
 import EditProfileModal from "./EditProfilePage";
@@ -51,7 +51,7 @@ const ProfilePage = () => {
     },
   });
 
-  const isMyProfile = authUser._id === user?._id;
+  const isMyProfile = authUser?._id === user?._id;
   const memberSinceDate = formatMemberSinceDate(user?.createdAt);
   const amIFollowing = authUser?.following?.includes(user?._id) ?? false;
 
