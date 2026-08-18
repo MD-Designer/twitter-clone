@@ -19,7 +19,7 @@ const App = () => {
       if (!res.ok) {
         throw new Error(data.error || "Something went wrong");
       }
-      return data;
+      return data.user;
     },
     retry: false,
   });
@@ -51,7 +51,10 @@ const App = () => {
           path="/notifications"
           element={authUser ? <NotificationPage /> : <Navigate to={"/login"} />}
         />
-        <Route path="/profile/:username" element={authUser ? <ProfilePage /> : <Navigate to={"/login"}/>} />
+        <Route
+          path="/profile/:username"
+          element={authUser ? <ProfilePage /> : <Navigate to={"/login"} />}
+        />
       </Routes>
       {authUser && <RightPanel />}
     </div>

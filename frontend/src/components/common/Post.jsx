@@ -17,9 +17,9 @@ const Post = ({ post }) => {
   const queryClient = useQueryClient();
 
   const postOwner = post.user;
-  const isMyPost = authUser?._id === post.user._id;
+  const isMyPost = authUser?._id === post.user?._id;
   const formattedDate = formatPostDate(post.createdAt);
-  const isLiked = post.likes.includes(authUser._id);
+  const isLiked = post.likes.includes(authUser?._id);
 
   const { mutate: deletePost, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
@@ -194,10 +194,10 @@ const Post = ({ post }) => {
                         <div className="flex flex-col">
                           <div className="flex items-center gap-1">
                             <span className="font-bold">
-                              {comment.user.fullName}
+                              {comment.user?.fullName}
                             </span>
                             <span className="text-gray-700 text-sm">
-                              @{comment.user.username}
+                              @{comment.user?.username}
                             </span>
                           </div>
                           <div className="text-sm">{comment.text}</div>
