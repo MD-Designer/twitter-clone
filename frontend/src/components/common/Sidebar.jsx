@@ -6,7 +6,7 @@ import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import toast from "react-hot-toast";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../../hooks/useAuthUser";
 
 const Sidebar = () => {
@@ -14,28 +14,30 @@ const Sidebar = () => {
 
   const { mutate: logout } = useMutation({
     mutationFn: async () => {
-      try {
-        const res = await fetch("/api/auth/logout", {
-          method: "POST",
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Somthing went wrong");
-        }
-        return data;
-      } catch (error) {
-        throw new error();
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || data.message || "Something went wrong");
       }
+
+      return data;
     },
+
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      queryClient.setQueryData(["authUser"], null);
     },
-    onError: () => {
+
+    onError: (error) => {
+      console.error("Logout error:", error);
       toast.error("Logout failed");
     },
   });
 
- const {data: authUser} = useAuthUser()
+  const { data: authUser } = useAuthUser();
 
   return (
     <div className="md:flex-[2_2_0] w-18 max-w-52">

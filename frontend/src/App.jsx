@@ -8,7 +8,7 @@ import NotificationPage from "./pages/notification/NotificationPage";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import ProfilePage from "./pages/profile/ProfilePage";
-// import ProfilePage from "./pages/profile/ProfilePage";
+
 const App = () => {
   const { data: authUser, isLoading } = useQuery({
     queryKey: ["authUser"],
@@ -45,13 +45,13 @@ const App = () => {
         />
         <Route
           path="/signup"
-          element={authUser ? <SignupPage /> : <Navigate to={"/"} />}
+          element={!authUser ? <SignupPage /> : <Navigate to={"/"} />}
         />
         <Route
           path="/notifications"
           element={authUser ? <NotificationPage /> : <Navigate to={"/login"} />}
         />
-        <Route path="/profile/:username" element={<ProfilePage />} />
+        <Route path="/profile/:username" element={authUser ? <ProfilePage /> : <Navigate to={"/login"}/>} />
       </Routes>
       {authUser && <RightPanel />}
     </div>
