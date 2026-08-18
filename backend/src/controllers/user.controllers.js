@@ -118,45 +118,30 @@ export const updateUserProfile = async (req, res) => {
     }
 
     if (profileImg) {
-      if (user.profileImg?.fileId) {
-        await imagekit.deleteFile(user.profileImg.fileId);
-      }
       const uploadResponse = await imagekit.upload({
         file: profileImg,
         fileName: "profile-image",
         folder: "/users/profile",
       });
 
-      user.profileImg = {
-        url: uploadResponse.url,
-        fileId: uploadResponse.fileId,
-      };
+      user.profileImg = uploadResponse.url;
     }
 
     if (coverImg) {
-      if (user.coverImg?.fileId) {
-        await imagekit.deleteFile(user.coverImg.fileId);
-      }
-
       const uploadResponse = await imagekit.upload({
         file: coverImg,
         fileName: "cover-image",
         folder: "/users/cover",
       });
 
-      user.coverImg = {
-        url: uploadResponse.url,
-        fileId: uploadResponse.fileId,
-      };
+      user.coverImg = uploadResponse.url;
     }
-
+    
     user.fullName = fullName || user.fullName;
     user.email = email || user.email;
     user.username = username || user.username;
     user.bio = bio || user.bio;
     user.link = link || user.link;
-    user.profileImg = profileImg || user.profileImg;
-    user.coverImg = coverImg || user.coverImg;
 
     user = await user.save();
 
